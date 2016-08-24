@@ -11,9 +11,11 @@ import edu.cmu.tetrad.search.BDeuScore;
 import edu.cmu.tetrad.search.Fgs;
 import edu.cmu.tetrad.search.PatternToDag;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * Created by Erich on 8/22/2016.
@@ -35,18 +37,20 @@ public class SimulationEvaluation {
     public static void main(String... args){
         int verbosity = 1;
         //specify the number of iterations per data set type
-        int iterations = 200;
+        int iterations = 400;
 
         //specify the space of data params to span:
-        List<Integer> numVars = Arrays.asList(7,12);
-        List<Double> edgesPerNode = Arrays.asList(1.0);//0.5,1.0,1.5);
+        List<Integer> numVars = Arrays.asList(12);
+        List<Double> edgesPerNode = Arrays.asList(0.5,1.0,1.5);
         List<Integer> numCases = Arrays.asList(200,800);
 
         //specify the space of predictor params to span:
-        List<Integer> resimSize = Arrays.asList(2,3,5);
-        List<Integer> hsimRepeat = Arrays.asList(10);//1,10,30,100);
-        List<Integer> fsimRepeat = Arrays.asList(10);//1,10,30,100);
+        List<Integer> resimSize = Arrays.asList(3,6);
+        List<Integer> hsimRepeat = Arrays.asList(1,25,100);
+        List<Integer> fsimRepeat = Arrays.asList(1,25,100);
 
+        String nl = System.lineSeparator();
+        String output = "Simulation study output comparing Fsim and Hsim on predicting graph discovery accuracy"+nl;
         //OUTLINE:
         //generate data sets and graphs (one loop for each param)
         for (Integer vars : numVars) {
@@ -164,19 +168,30 @@ public class SimulationEvaluation {
                     PRAOerrors[] fMSE = new PRAOerrors[fsimRepeat.size()];
                     PRAOerrors[][] hMSE = new PRAOerrors[resimSize.size()][hsimRepeat.size()];
                     for (int j=0;j<fMSE.length;j++){
-                        fMSE[j]=new PRAOerrors(fsimErrsByPars[j],"MSE for Fsim at (param details here)");
+                        fMSE[j]=new PRAOerrors(fsimErrsByPars[j],"MSE for Fsim at vars="+vars+" edgeratio="+edgeratio+
+                        " cases="+numCases+" frepeat="+fsimRepeat.get(j));
                         if(verbosity>0){System.out.println(fMSE[j].allToString());}
+                        output=output+fMSE[j].allToString()+nl;
                     }
                     for (int j=0;j<hMSE.length;j++){
                         for (int k=0;k<hMSE[j].length;k++){
-                            hMSE[j][k]=new PRAOerrors(hsimErrsByPars[j][k],"MSE for Hsim at (params)");
+                            hMSE[j][k]=new PRAOerrors(hsimErrsByPars[j][k],"MSE for Hsim at vars="+vars+" edgeratio="+edgeratio+
+                                    " cases="+numCases+" rsize="+resimSize.get(j)+" repeat="+hsimRepeat.get(k));
                             if(verbosity>0){System.out.println(hMSE[j][k].allToString());}
+                            output=output+hMSE[j][k].allToString()+nl;
                         }
                     }
                     //record all the params, the base error values, and the fsim/hsim mean squared errors
                 }
             }
         }
-
+        try {
+            PrintWriter writer = new PrintWriter("Hsim-vs-Fsim-SimulationEvaluation.txt", "UTF-8");
+            writer.println(output);
+            writer.close();
+        }
+        catch(Exception IOException){
+            IOException.printStackTrace();
+        }
     }
 }
