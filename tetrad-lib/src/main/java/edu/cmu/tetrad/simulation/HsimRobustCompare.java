@@ -8,6 +8,7 @@ import edu.cmu.tetrad.bayes.*;
 import edu.cmu.tetrad.data.ContinuousVariable;
 import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.data.DataWriter;
+import edu.cmu.tetrad.data.DiscreteVariable;
 import edu.cmu.tetrad.graph.*;
 import edu.cmu.tetrad.search.BDeuScore;
 import edu.cmu.tetrad.search.Fgs;
@@ -43,7 +44,7 @@ public class HsimRobustCompare {
         List<double[]> output = new ArrayList<>();
 
             for (int i = 0; i < numVars; i++) {
-                vars.add(new ContinuousVariable("X" + i));
+                vars.add(new DiscreteVariable("X" + i));
             }
 
             Graph odag = GraphUtils.randomGraphRandomForwardEdges(vars, 0, numEdges, 30, 15, 15, false, true);
@@ -65,7 +66,7 @@ public class HsimRobustCompare {
             if (verbose) System.out.println(oGraphOut);
 
             //calculate FGS errors
-            oErrors = new double[5];
+            //oErrors = new double[5];
             oErrors = HsimUtils.errorEval(oGraphOut, odag);
             if (verbose) System.out.println(oErrors[0] + " " + oErrors[1] + " " + oErrors[2] +
                     " " + oErrors[3] + " " + oErrors[4]);
