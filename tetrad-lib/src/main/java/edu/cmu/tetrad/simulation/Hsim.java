@@ -4,6 +4,7 @@ import edu.cmu.tetrad.bayes.*;
 import edu.cmu.tetrad.data.DataSet;
 import edu.cmu.tetrad.graph.Dag;
 import edu.cmu.tetrad.graph.Graph;
+import edu.cmu.tetrad.graph.GraphUtils;
 import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.util.RandomUtil;
 
@@ -94,6 +95,9 @@ public class Hsim {
         //and
         //public int getCategoryIndex(String nodeName, String category)
 
+        //want the causal ordering of the subgraph:
+        List<Node> subgraphOrdering = GraphUtils.getCausalOrdering(subgraph);
+
         //loop through each row of the data set, conditioning and drawing values each time.
         for (int row = 0; row < data.getNumRows(); row++) {
             //create a new evidence object
@@ -108,7 +112,10 @@ public class Hsim {
             //THIS SHOULD ALL BE INSIDE ANOTHER LOOP THROUGH THE RESIM VARS:
             //this actually needs to be more careful than a for each. I think a causal ordering of resim should be used?
             Set<Node> conditionNodes = mbOuter;
-            for (Node node : simnodes) {
+            for (int nodeint = 0; nodeint< subgraphOrdering.size(); nodeint++){
+                Node node = subgraphOrdering.get(nodeint);
+                if (!simnodes.contains(node)) continue;
+            //for (Node node : simnodes) {
                 //identify the conditioning set for this node, which is mbAll plus the previously resimmed nodes
 
                 //loop through all the nodes being conditioned upon, and set their values in the evidence prop

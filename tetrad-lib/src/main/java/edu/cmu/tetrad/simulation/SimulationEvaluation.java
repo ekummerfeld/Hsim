@@ -35,19 +35,19 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class SimulationEvaluation {
     public static void main(String... args){
-        int verbosity = 1;
+        int verbosity = 2;
         //specify the number of iterations per data set type
-        int iterations = 400;
+        int iterations = 200;
 
         //specify the space of data params to span:
         List<Integer> numVars = Arrays.asList(12);
-        List<Double> edgesPerNode = Arrays.asList(0.5,1.0,1.5);
-        List<Integer> numCases = Arrays.asList(200,800);
+        List<Double> edgesPerNode = Arrays.asList(1.0);
+        List<Integer> numCases = Arrays.asList(800);
 
         //specify the space of predictor params to span:
-        List<Integer> resimSize = Arrays.asList(3,6);
-        List<Integer> hsimRepeat = Arrays.asList(1,25,100);
-        List<Integer> fsimRepeat = Arrays.asList(1,25,100);
+        List<Integer> resimSize = Arrays.asList(2,4,7);
+        List<Integer> hsimRepeat = Arrays.asList(20);
+        List<Integer> fsimRepeat = Arrays.asList(1);
 
         String nl = System.lineSeparator();
         String output = "Simulation study output comparing Fsim and Hsim on predicting graph discovery accuracy"+nl;
@@ -71,7 +71,7 @@ public class SimulationEvaluation {
                         whichFrepeat++;
                     }
                     List<PRAOerrors>[][] hsimErrsByPars = new ArrayList[resimSize.size()][hsimRepeat.size()];
-                    System.out.println(resimSize.size()+" "+hsimRepeat.size());
+                    //System.out.println(resimSize.size()+" "+hsimRepeat.size());
                     int whichHrepeat;
                     int whichrsize = 0;
                     for (int rsize : resimSize) {
@@ -87,6 +87,7 @@ public class SimulationEvaluation {
                     //*************done initializing hsimErrsByPars and fsimErrsByPars
                     //long loop generating howevermany datasets
                     for (int i=0;i<iterations;i++) {
+                        if (verbosity>1) System.out.println("iteration "+i);
                         Graph odag = GraphUtils.randomGraphRandomForwardEdges(varslist, 0, numEdges, 30, 15, 15, false, true);
                         BayesPm bayesPm = new BayesPm(odag, 2, 2);
                         BayesIm bayesIm = new MlBayesIm(bayesPm, MlBayesIm.RANDOM);
@@ -176,7 +177,7 @@ public class SimulationEvaluation {
                     for (int j=0;j<hMSE.length;j++){
                         for (int k=0;k<hMSE[j].length;k++){
                             hMSE[j][k]=new PRAOerrors(hsimErrsByPars[j][k],"MSE for Hsim at vars="+vars+" edgeratio="+edgeratio+
-                                    " cases="+numCases+" rsize="+resimSize.get(j)+" repeat="+hsimRepeat.get(k));
+                                    " cases="+numCases+" rsize="+resimSize.get(j)+" repeat="+hsimRepeat.get(k)+" iterations="+iterations);
                             if(verbosity>0){System.out.println(hMSE[j][k].allToString());}
                             output=output+hMSE[j][k].allToString()+nl;
                         }
@@ -186,7 +187,7 @@ public class SimulationEvaluation {
             }
         }
         try {
-            PrintWriter writer = new PrintWriter("Hsim-vs-Fsim-SimulationEvaluation.txt", "UTF-8");
+            PrintWriter writer = new PrintWriter("HvsF-SimulationEvaluation.txt", "UTF-8");
             writer.println(output);
             writer.close();
         }
