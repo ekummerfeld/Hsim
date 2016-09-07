@@ -37,15 +37,15 @@ public class SimulationEvaluation {
     public static void main(String... args){
         int verbosity = 2;
         //specify the number of iterations per data set type
-        int iterations = 200;
+        int iterations = 400;
 
         //specify the space of data params to span:
-        List<Integer> numVars = Arrays.asList(12);
+        List<Integer> numVars = Arrays.asList(40);
         List<Double> edgesPerNode = Arrays.asList(1.0);
-        List<Integer> numCases = Arrays.asList(800);
+        List<Integer> numCases = Arrays.asList(500);
 
         //specify the space of predictor params to span:
-        List<Integer> resimSize = Arrays.asList(2,4,7);
+        List<Integer> resimSize = Arrays.asList(1,2,3,4,5,6,7,8,9);
         List<Integer> hsimRepeat = Arrays.asList(20);
         List<Integer> fsimRepeat = Arrays.asList(1);
 
