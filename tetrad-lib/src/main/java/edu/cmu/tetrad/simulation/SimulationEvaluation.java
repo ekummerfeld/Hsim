@@ -37,17 +37,17 @@ public class SimulationEvaluation {
     public static void main(String... args){
         int verbosity = 2;
         //specify the number of iterations per data set type
-        int iterations = 400;
+        int iterations = 4;
 
         //specify the space of data params to span:
-        List<Integer> numVars = Arrays.asList(40);
+        List<Integer> numVars = Arrays.asList(15);
         List<Double> edgesPerNode = Arrays.asList(1.0);
-        List<Integer> numCases = Arrays.asList(500);
+        List<Integer> numCases = Arrays.asList(300);
 
         //specify the space of predictor params to span:
-        List<Integer> resimSize = Arrays.asList(1,2,3,4,5,6,7,8,9);
-        List<Integer> hsimRepeat = Arrays.asList(20);
-        List<Integer> fsimRepeat = Arrays.asList(1);
+        List<Integer> resimSize = Arrays.asList(1);
+        List<Integer> hsimRepeat = Arrays.asList(100);
+        List<Integer> fsimRepeat = Arrays.asList(100);
 
         String nl = System.lineSeparator();
         String output = "Simulation study output comparing Fsim and Hsim on predicting graph discovery accuracy"+nl;
@@ -168,21 +168,33 @@ public class SimulationEvaluation {
                     //Average the squared errors for each set of fsim/hsim params across all iterations
                     PRAOerrors[] fMSE = new PRAOerrors[fsimRepeat.size()];
                     PRAOerrors[][] hMSE = new PRAOerrors[resimSize.size()][hsimRepeat.size()];
+                    String[][] latexTableArray = new String[resimSize.size()*hsimRepeat.size()+fsimRepeat.size()][5];
                     for (int j=0;j<fMSE.length;j++){
                         fMSE[j]=new PRAOerrors(fsimErrsByPars[j],"MSE for Fsim at vars="+vars+" edgeratio="+edgeratio+
-                        " cases="+numCases+" frepeat="+fsimRepeat.get(j));
+                        " cases="+cases+" frepeat="+fsimRepeat.get(j));
                         if(verbosity>0){System.out.println(fMSE[j].allToString());}
                         output=output+fMSE[j].allToString()+nl;
+                        latexTableArray[j]= prelimToPRAOtable(fMSE[j]);
                     }
                     for (int j=0;j<hMSE.length;j++){
                         for (int k=0;k<hMSE[j].length;k++){
                             hMSE[j][k]=new PRAOerrors(hsimErrsByPars[j][k],"MSE for Hsim at vars="+vars+" edgeratio="+edgeratio+
-                                    " cases="+numCases+" rsize="+resimSize.get(j)+" repeat="+hsimRepeat.get(k)+" iterations="+iterations);
+                                    " cases="+cases+" rsize="+resimSize.get(j)+" repeat="+hsimRepeat.get(k)+" iterations="+iterations);
                             if(verbosity>0){System.out.println(hMSE[j][k].allToString());}
                             output=output+hMSE[j][k].allToString()+nl;
+                            latexTableArray[fsimRepeat.size()+j*hMSE[j].length+k]=prelimToPRAOtable(hMSE[j][k]);
                         }
                     }
                     //record all the params, the base error values, and the fsim/hsim mean squared errors
+                    String latexTable = HsimUtils.makeLatexTable(latexTableArray);
+                    try {
+                        PrintWriter writer = new PrintWriter("latexTable.txt", "UTF-8");
+                        writer.println(latexTable);
+                        writer.close();
+                    }
+                    catch(Exception IOException){
+                        IOException.printStackTrace();
+                    }
                 }
             }
         }
@@ -194,5 +206,16 @@ public class SimulationEvaluation {
         catch(Exception IOException){
             IOException.printStackTrace();
         }
+    }
+    //******************Private Methods************************//
+    private static String[] prelimToPRAOtable(PRAOerrors input){
+        String[] output = new String[5];
+        double[] values = input.toArray();
+        String[] vStrings = HsimUtils.formatErrorsArray(values,"%7.4e");
+        output[0]=input.getName();
+        for (int i=1;i<output.length;i++){
+            output[i]=vStrings[i-1];
+        }
+        return output;
     }
 }

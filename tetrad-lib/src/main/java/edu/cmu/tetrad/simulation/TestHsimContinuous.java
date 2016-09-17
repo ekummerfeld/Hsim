@@ -23,8 +23,9 @@ import java.util.Set;
  */
 public class TestHsimContinuous {
     public static void main(String... Args){
-        int numEdges = 5;
-        int vars = 5;
+        int numEdges = 20;
+        int cases = 50;
+        int vars = 20;
         List<Node> varslist = new ArrayList<>();
         for (int i = 0; i < vars; i++) {
             varslist.add(new ContinuousVariable("X" + i));
@@ -32,10 +33,10 @@ public class TestHsimContinuous {
         Graph odag = GraphUtils.randomGraphRandomForwardEdges(varslist, 0, numEdges, 30, 15, 15, false, true);
         System.out.println(odag);
         SemIm oIM = new SemIm(new SemPm(odag),new SemImInitializationParams());
-        DataSet oData = oIM.simulateDataRecursive(5,false);
+        DataSet oData = oIM.simulateDataRecursive(cases,false);
         System.out.println(oData);
 
-        String[] resimNodeNames = {"X3","X4"};
+        String[] resimNodeNames = {"X17","X18"};
         Set<Node> simnodes = new HashSet<Node>();
         for( int i = 0; i < resimNodeNames.length; i++) {
             Node thisNode = odag.getNode(resimNodeNames[i]);

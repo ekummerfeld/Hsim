@@ -44,6 +44,7 @@ public class HsimUtils {
         return subgraph;
     }
 
+    //this method returns the set of all parents of a provided set of parents, given a provided graph
     public static Set<Node> getAllParents(Graph inputgraph, Set<Node> inputnodes) {
         List<Node> parents = new ArrayList<Node>();
         List<Node> pAdd = new ArrayList<Node>();
@@ -63,6 +64,7 @@ public class HsimUtils {
         return output;
     }
 
+    //this method returns an array of doubles, which are standard error metrics for graph learning
     public static double[] errorEval(Graph estPattern, Graph truePattern) {
         GraphUtils.GraphComparison comparison = SearchGraphUtils.getGraphComparison2(estPattern, truePattern);
 
@@ -146,6 +148,7 @@ public class HsimUtils {
         return (correctEdges / (double) estimatedEdges);
     }
 
+    //this method makes a VerticalIntDataBox from a regular data set
     public static VerticalIntDataBox makeVertIntBox(DataSet dataset) {
         //this is for turning regular data set into verticalintbox (not doublebox...)
         int[][] data = new int[dataset.getNumColumns()][dataset.getNumRows()];
@@ -156,5 +159,40 @@ public class HsimUtils {
         }
         return new VerticalIntDataBox(data);
     }
-
+    //returns a String formatted as a latex table, which can be pasted directly into a latex document
+    public static String makeLatexTable(String[][] tablevalues){
+        String nl = System.lineSeparator();
+        String output = "\\begin{table}[ht]"+nl;
+        output = output + "\\begin{center}" +nl;
+        int dim1 = tablevalues.length;
+        int dim2 = tablevalues[0].length;
+        //determines number of columns in the table
+        output=output + "\\begin{tabular}{|";
+        for (int c=0;c<dim2;c++){
+            output=output+"c|";
+        }
+        output = output + "}"+nl+"\\hline"+nl;
+        //fills in values of the table
+        for (int i=0;i<dim1;i++){
+            for (int j=0;j<dim2;j++){
+                output = output + tablevalues[i][j];
+                if (dim2>1 && j!=dim2-1){
+                    output = output+" & ";
+                }
+            }
+            output=output+"\\\\ \\hline" + nl;
+        }
+        //caps off the environments used by the table
+        output=output+"\\end{tabular}"+nl+"\\end{center}"+nl+"\\end{table}"+nl;
+        return output;
+    }
+    //this turns an array of doubles into an array of strings, formatted for easier reading
+    //the input String should be formatted appropriately for the String.format method
+    public static String[] formatErrorsArray(double[] inputArray,String formatting){
+        String[] output = new String[inputArray.length];
+        for (int i=0;i<inputArray.length;i++){
+            output[i]=String.format(formatting,inputArray[i]);
+        }
+        return output;
+    }
 }

@@ -79,8 +79,18 @@ final public class PRAOerrors {
     public String valuesToString(){
         return "AR: "+AdjRecall+" AP: "+AdjPrecision+" OR: "+OrientRecall+" OP: "+OrientPrecision;
     }
+    //returns a string summarizing all the information
     public String allToString(){
         String nl = System.lineSeparator();
         return errorsName+nl+"AR: "+AdjRecall+" AP: "+AdjPrecision+" OR: "+OrientRecall+" OP: "+OrientPrecision;
+    }
+    //returns an array of the error values
+    public double[] toArray(){
+        double[] output = new double[4];
+        output[0]=AdjRecall;
+        output[1]=AdjPrecision;
+        output[2]=OrientRecall;
+        output[3]=OrientPrecision;
+        return output;
     }
 }
