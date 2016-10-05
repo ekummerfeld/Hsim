@@ -64,24 +64,9 @@ public class HsimAutoRun {
         double[] output;
         output = new double[5];
         try {
-
-            //==== try with BigDataSetUtility ==============
-
-            //DataSet regularDataSet = BigDataSetUtility.readInDiscreteData(new File(readfilename), delimiter, eVars);
-            // ======done with BigDataSetUtility=============
-
-
-            //if (verbose) System.out.println("Regular cols: " + regularDataSet.getNumColumns() + " rows: " + regularDataSet.getNumRows());
-
-            //testing the read file
-            //DataWriter.writeRectangularData(dataSet, new FileWriter("dataOut2.txt"), '\t');
-
-            //apply Hsim to data, with whatever parameters
-
             //========first make the Dag for Hsim==========
             BDeuScore score = new BDeuScore(data);
 
-            //ICovarianceMatrix cov = new CovarianceMatrixOnTheFly(dataSet);
             double penaltyDiscount = 2.0;
             Fgs fgs = new Fgs(score);
             fgs.setVerbose(false);

@@ -1,18 +1,17 @@
 package edu.cmu.tetrad.simulation;
 
+import edu.cmu.tetrad.data.ContinuousVariable;
 import edu.cmu.tetrad.data.DataSet;
+import edu.cmu.tetrad.data.DiscreteVariable;
 import edu.cmu.tetrad.data.VerticalIntDataBox;
-import edu.cmu.tetrad.graph.Edge;
-import edu.cmu.tetrad.graph.Graph;
-import edu.cmu.tetrad.graph.GraphUtils;
-import edu.cmu.tetrad.graph.Node;
+import edu.cmu.tetrad.graph.*;
 import edu.cmu.tetrad.search.SearchGraphUtils;
+import edu.cmu.tetrad.sem.GeneralizedSemPm;
+import edu.cmu.tetrad.sem.TemplateExpander;
 import edu.cmu.tetrad.util.TextTable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * Created by Erich on 4/22/2016.
@@ -194,5 +193,68 @@ public class HsimUtils {
             output[i]=String.format(formatting,inputArray[i]);
         }
         return output;
+    }
+    //grabbed from GeneralSemSimulationSpecial1
+    public static GeneralizedSemPm getPm(Graph graph) {
+
+        GeneralizedSemPm pm = new GeneralizedSemPm(graph);
+
+        List<Node> variablesNodes = pm.getVariableNodes();
+        List<Node> errorNodes = pm.getErrorNodes();
+
+        Map<String, String> paramMap = new HashMap<String, String>();
+        String[] funcs = {"TSUM(NEW(B)*$)", "TSUM(NEW(B)*$+NEW(C)*sin(NEW(T)*$+NEW(A)))",
+                "TSUM(NEW(B)*(.5*$ + .5*(sqrt(abs(NEW(b)*$+NEW(exoErrorType))) ) ) )"};
+        paramMap.put("s", "U(1,3)");
+        paramMap.put("B", "Split(-1.5,-.5,.5,1.5)");
+        paramMap.put("C", "Split(-1.5,-.5,.5,1.5)");
+        paramMap.put("T", "U(.5,1.5)");
+        paramMap.put("A", "U(0,.25)");
+        paramMap.put("exoErrorType", "U(-.5,.5)");
+        paramMap.put("funcType", "U(1,5)");
+
+        String nonlinearStructuralEdgesFunction = funcs[0];
+        String nonlinearFactorMeasureEdgesFunction = funcs[0];
+
+        try {
+            for (Node node : variablesNodes) {
+                if (node.getNodeType() == NodeType.LATENT) {
+                    String _template = TemplateExpander.getInstance().expandTemplate(
+                            nonlinearStructuralEdgesFunction, pm, node);
+                    pm.setNodeExpression(node, _template);
+                } else {
+                    String _template = TemplateExpander.getInstance().expandTemplate(
+                            nonlinearFactorMeasureEdgesFunction, pm, node);
+                    pm.setNodeExpression(node, _template);
+                }
+            }
+
+            for (Node node : errorNodes) {
+                String _template = TemplateExpander.getInstance().expandTemplate("U(-.5,.5)", pm, node);
+                pm.setNodeExpression(node, _template);
+            }
+
+            Set<String> parameters = pm.getParameters();
+
+            for (String parameter : parameters) {
+                for (String type : paramMap.keySet()) {
+                    if (parameter.startsWith(type)) {
+                        pm.setParameterExpression(parameter, paramMap.get(type));
+                    }
+                }
+            }
+        } catch (ParseException e) {
+            System.out.println(e);
+        }
+
+        return pm;
+    }
+    //used for making random graphs for SEMS without having to manually constuct the variable set each time
+    public static Graph mkRandSEMDAG(int numVars,int numEdges){
+        List<Node> varslist = new ArrayList<>();
+        for (int i = 0; i < numVars; i++) {
+            varslist.add(new ContinuousVariable("X" + i));
+        }
+        return GraphUtils.randomGraphRandomForwardEdges(varslist, 0, numEdges, 30, 15, 15, false, true);
     }
 }

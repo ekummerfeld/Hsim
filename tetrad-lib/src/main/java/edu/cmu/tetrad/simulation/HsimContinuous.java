@@ -98,7 +98,7 @@ public class HsimContinuous {
         //public int getCategoryIndex(String nodeName, String category)
 
         //want the causal ordering of the subgraph:
-        List<Node> subgraphOrdering = GraphUtils.getCausalOrdering(subgraph);
+        //List<Node> subgraphOrdering = GraphUtils.getCausalOrdering(subgraph);
 
         //loop through each row of the data set, conditioning and drawing values each time.
         for (int row = 0; row < data.getNumRows(); row++) {
