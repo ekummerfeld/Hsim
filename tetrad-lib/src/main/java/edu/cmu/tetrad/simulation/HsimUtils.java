@@ -195,7 +195,8 @@ public class HsimUtils {
         return output;
     }
     //grabbed from GeneralSemSimulationSpecial1
-    public static GeneralizedSemPm getPm(Graph graph) {
+    //func should be 0, 1, or 2, and picks out which of the strings in funcs is used to parameterize the model
+    public static GeneralizedSemPm getNonlinearPm(Graph graph, int func) {
 
         GeneralizedSemPm pm = new GeneralizedSemPm(graph);
 
@@ -213,8 +214,8 @@ public class HsimUtils {
         paramMap.put("exoErrorType", "U(-.5,.5)");
         paramMap.put("funcType", "U(1,5)");
 
-        String nonlinearStructuralEdgesFunction = funcs[0];
-        String nonlinearFactorMeasureEdgesFunction = funcs[0];
+        String nonlinearStructuralEdgesFunction = funcs[func];
+        String nonlinearFactorMeasureEdgesFunction = funcs[func];
 
         try {
             for (Node node : variablesNodes) {

@@ -68,11 +68,11 @@ public class HsimRepeatAC {
         double[] evalIncrement;
         //evalIncrement = new double[5];
         //Integer count = 0;
-        Integer count0 = 1;
-        Integer count1 = 1;
-        Integer count2 = 1;
-        Integer count3 = 1;
-        Integer count4 = 1;
+        Integer count0 = 0;
+        Integer count1 = 0;
+        Integer count2 = 0;
+        Integer count3 = 0;
+        Integer count4 = 0;
 
         for (Integer i : schedule) {
             //count++;
@@ -110,11 +110,11 @@ public class HsimRepeatAC {
                 count4++;
             }
         }
-        evalTotal[0]=evalTotal[0] / (double) (count0 - 1);
-        evalTotal[1]=evalTotal[1] / (double) (count1 - 1);
-        evalTotal[2]=evalTotal[2] / (double) (count2 - 1);
-        evalTotal[3]=evalTotal[3] / (double) (count3 - 1);
-        evalTotal[4]=evalTotal[4] / (double) (count4 - 1);
+        evalTotal[0]=evalTotal[0] / (double) (count0);
+        evalTotal[1]=evalTotal[1] / (double) (count1);
+        evalTotal[2]=evalTotal[2] / (double) (count2);
+        evalTotal[3]=evalTotal[3] / (double) (count3);
+        evalTotal[4]=evalTotal[4] / (double) (count4);
 
         if (verbose){System.out.println("Average eval scores: "+evalTotal[0]+" "+evalTotal[1]
                 +" "+evalTotal[2]+" "+evalTotal[3]+" "+ evalTotal[4]);}

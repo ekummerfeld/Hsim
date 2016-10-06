@@ -11,9 +11,7 @@ import edu.cmu.tetrad.graph.Node;
 import edu.cmu.tetrad.search.Fgs;
 import edu.cmu.tetrad.search.PatternToDag;
 import edu.cmu.tetrad.search.SemBicScore;
-import edu.cmu.tetrad.sem.GeneralizedSemEstimator;
-import edu.cmu.tetrad.sem.GeneralizedSemIm;
-import edu.cmu.tetrad.sem.GeneralizedSemPm;
+import edu.cmu.tetrad.sem.*;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -40,17 +38,17 @@ public class SimEvalContinuous {
     public static void main(String... args){
         int verbosity = 2;
         //specify the number of iterations per data set type
-        int iterations = 1;
+        int iterations = 10;
 
         //specify the space of data params to span:
         List<Integer> numVars = Arrays.asList(15);
-        List<Double> edgesPerNode = Arrays.asList(1.0);
-        List<Integer> numCases = Arrays.asList(300);
+        List<Double> edgesPerNode = Arrays.asList(2.0);
+        List<Integer> numCases = Arrays.asList(1000);
 
         //specify the space of predictor params to span:
-        List<Integer> resimSize = Arrays.asList(1);
-        List<Integer> hsimRepeat = Arrays.asList(30);
-        List<Integer> fsimRepeat = Arrays.asList(30);
+        List<Integer> resimSize = Arrays.asList(1,3);
+        List<Integer> hsimRepeat = Arrays.asList(40);
+        List<Integer> fsimRepeat = Arrays.asList(40);
 
         String nl = System.lineSeparator();
         String output = "Simulation study output comparing Fsim and Hsim on predicting graph discovery accuracy"+nl;
@@ -93,7 +91,7 @@ public class SimEvalContinuous {
                         if (verbosity>1) System.out.println("iteration "+i);
                         Graph odag = GraphUtils.randomGraphRandomForwardEdges(varslist, 0, numEdges, 30, 15, 15, false, true);
                         //this focuses on nonlinear, nongaussian data
-                        GeneralizedSemPm pm = HsimUtils.getPm(odag);
+                        GeneralizedSemPm pm = HsimUtils.getNonlinearPm(odag,2);
                         GeneralizedSemIm im = new GeneralizedSemIm(pm);
                         //oData is the original data set, and odag is the original dag.
                         DataSet oData = im.simulateData(cases,false);
@@ -119,11 +117,16 @@ public class SimEvalContinuous {
                                 PatternToDag pickdag = new PatternToDag(oFGSGraph);
                                 Graph fgsDag = pickdag.patternToDagMeek();
                                 Dag fgsdag2 = new Dag(fgsDag);
-                                GeneralizedSemPm simSemPm = new GeneralizedSemPm(fgsdag2);
+                                //then fit an IM to this dag and the data. GeneralizedSemEstimator seems to bug out
+                                //GeneralizedSemPm simSemPm = new GeneralizedSemPm(fgsdag2);
+                                //GeneralizedSemEstimator gsemEstimator = new GeneralizedSemEstimator();
+                                //GeneralizedSemIm fittedIM = gsemEstimator.estimate(simSemPm, oData);
+
+                                SemPm simSemPm = new SemPm(fgsdag2);
                                 //BayesPm simBayesPm = new BayesPm(fgsdag2, bayesPm);
-                                GeneralizedSemEstimator gsemEstimator = new GeneralizedSemEstimator();
-                                try {
-                                    GeneralizedSemIm fittedIM = gsemEstimator.estimate(simSemPm, oData);
+                                SemEstimator simSemEstimator = new SemEstimator(oData,simSemPm);
+                                SemIm fittedIM = simSemEstimator.estimate();
+
                                 DataSet simData = fittedIM.simulateData(cases, false);
                                 //after making the full resim data (simData), run FGS on that
                                 ICovarianceMatrix simcov = new CovarianceMatrixOnTheFly(simData);
@@ -134,10 +137,6 @@ public class SimEvalContinuous {
                                 Graph simGraphOut = simfgs.search();
                                 PRAOerrors simErrors = new PRAOerrors(HsimUtils.errorEval(simGraphOut, fgsdag2), "Fsim errors "+r);
                                 errorsList.add(simErrors);
-                                }
-                                catch(Exception NotStrictlyPositiveException){
-
-                                }
                             }
                             PRAOerrors avErrors = new PRAOerrors(errorsList,"Average errors for Fsim at repeat="+fsimRepeat.get(whichFrepeat));
                             if (verbosity>3) System.out.println(avErrors.allToString());

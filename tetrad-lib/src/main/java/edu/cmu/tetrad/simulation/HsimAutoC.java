@@ -55,7 +55,6 @@ public class HsimAutoC {
         //========first make the Dag for Hsim==========
         ICovarianceMatrix cov = new CovarianceMatrixOnTheFly(data);
         SemBicScore score = new SemBicScore(cov);
-        //BDeuScore score = new BDeuScore(data);
 
         double penaltyDiscount = 2.0;
         Fgs fgs = new Fgs(score);
@@ -118,7 +117,7 @@ public class HsimAutoC {
         //edu.cmu.tetrad.io.DataReader dataReaderOut = new VerticalTabularDiscreteDataReader(dataFileOut, delimiter);
 
         ICovarianceMatrix newcov = new CovarianceMatrixOnTheFly(data);
-        SemBicScore newscore = new SemBicScore(cov);
+        SemBicScore newscore = new SemBicScore(newcov);
         Fgs fgsOut = new Fgs(newscore);
         fgsOut.setVerbose(false);
         fgsOut.setNumPatternsToStore(0);
